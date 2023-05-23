@@ -8,6 +8,12 @@ import file_converter
 from google.cloud import bigquery
 
 
+# GCP Credential
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/diego/OneDrive/Área de Trabalho/PDI/Secret/ifsp-pdi-d3cb64044d21.json"
+
+
+# Schema Builder
 
 VALID_TYPES = ["STRING", "BYTES", "INTEGER", "FLOAT", "BOOLEAN", "TIMESTAMP", "DATE", "TIME", "DATETIME", "RECORD"]
 
@@ -72,8 +78,7 @@ class SchemaBuilder:
         return True
 
 
-
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/diego/OneDrive/Área de Trabalho/PDI/Secret/ifsp-pdi-d3cb64044d21.json"
+# Application features
 
 def browse_files(entry):
     directory = filedialog.askdirectory()
@@ -124,6 +129,8 @@ def create_tables(dataset_id_entry, table_id_entry, bucket_uri_entry, auto_schem
         root.update_idletasks()
         messagebox.showerror('Erro', f'Erro ao criar a tabela. {str(e)}')
 
+
+# Interface generator
 
 
 root = ThemedTk(theme='lumen')
