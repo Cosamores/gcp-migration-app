@@ -9,40 +9,42 @@ from google.cloud import bigquery
 
 
 # GCP Credential
-
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "caminho para a chave GCP.json"
+def select_gcp_key(entry):
+    file_path = filedialog.askopenfilename()
+    entry.delete(0, tk.END)
+    entry.insert(tk.END, file_path)
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = file_path
 
 
 # Schema Builder
-
 VALID_TYPES = ["STRING", "BYTES", "INTEGER", "FLOAT", "BOOLEAN", "TIMESTAMP", "DATE", "TIME", "DATETIME", "RECORD"]
 
 class SchemaBuilder:
     def __init__(self, master):
         self.master = master
         self.schema_frame = ttk.Frame(master)
-        self.schema_frame.pack()
+        self.schema_frame.grid(sticky='nsew') # Changed pack to grid
 
         self.columns = []
         self.add_column()
 
         self.add_button = ttk.Button(self.schema_frame, text='+', command=self.add_column)
-        self.add_button.pack()
+        self.add_button.grid() # Changed pack to grid
 
     def add_column(self):
         column_frame = ttk.Frame(self.schema_frame)
-        column_frame.pack()
+        column_frame.grid() # Changed pack to grid
 
-        ttk.Label(column_frame, text='Nome da Coluna:').pack(side=tk.LEFT)
+        ttk.Label(column_frame, text='Nome da Coluna:').grid(sticky='w') # Changed pack to grid
         name_entry = ttk.Entry(column_frame)
-        name_entry.pack(side=tk.LEFT)
+        name_entry.grid() # Changed pack to grid
 
-        ttk.Label(column_frame, text='Tipo de Dados:').pack(side=tk.LEFT)
+        ttk.Label(column_frame, text='Tipo de Dados:').grid(sticky='w') # Changed pack to grid
         type_entry = ttk.Entry(column_frame)
-        type_entry.pack(side=tk.LEFT)
+        type_entry.grid() # Changed pack to grid
 
         remove_button = ttk.Button(column_frame, text='-', command=lambda: self.remove_column(column_frame))
-        remove_button.pack(side=tk.LEFT)
+        remove_button.grid() # Changed pack to grid
 
         self.columns.append((column_frame, name_entry, type_entry))
 
@@ -79,7 +81,6 @@ class SchemaBuilder:
 
 
 # Application features
-
 def browse_files(entry):
     directory = filedialog.askdirectory()
     entry.delete(0, tk.END)
@@ -131,21 +132,25 @@ def create_tables(dataset_id_entry, table_id_entry, bucket_uri_entry, auto_schem
 
 
 # Interface generator
-
-
 root = ThemedTk(theme='lumen')
 root.title('Ferramenta de Migração de Dados')
 
-schema_builder = SchemaBuilder(root)
-
 tab_control = ttk.Notebook(root)
+tab0 = ttk.Frame(tab_control)
 tab1 = ttk.Frame(tab_control)
 tab2 = ttk.Frame(tab_control)
 tab3 = ttk.Frame(tab_control)
+tab_control.add(tab0, text='Configuração de GCP')
 tab_control.add(tab1, text='Converter Arquivos')
 tab_control.add(tab2, text='Upload para GCP')
 tab_control.add(tab3, text='Criar Tabelas no BigQuery')
 tab_control.pack(expand=1, fill='both')
+
+# Tab0
+gcp_key_entry = ttk.Entry(tab0)
+gcp_key_entry.grid(row=0, column=1)
+ttk.Label(tab0, text='Chave GCP:').grid(row=0, column=0)
+ttk.Button(tab0, text='Selecionar', command=lambda: select_gcp_key(gcp_key_entry)).grid(row=0, column=2)
 
 # ProgressBar for Tabs
 progress = ttk.Progressbar(root, orient = 'horizontal', mode = 'determinate')
@@ -189,11 +194,12 @@ bucket_uri_entry = ttk.Entry(tab3)
 bucket_uri_entry.grid(row=2, column=1)
 ttk.Label(tab3, text='URI do Bucket:').grid(row=2, column=0)
 
-auto_schema_button = tk.BooleanVar()
-ttk.Radiobutton(tab3, text='Auto Schema', var=auto_schema_button, value=True).grid(row=3, column=0)
-ttk.Radiobutton(tab3, text='Manual Schema', var=auto_schema_button, value=False).grid(row=3, column=1)
-auto_schema_button.set(True)
+auto_schema_button = ttk.Checkbutton(tab3, text='Criar Esquema Automaticamente')
+auto_schema_button.grid(row=3, column=1)
 
-ttk.Button(tab3, text='Criar', command=lambda: create_tables(dataset_id_entry, table_id_entry, bucket_uri_entry, auto_schema_button, schema_builder, progress, root)).grid(row=4, column=1)
+# Add the Schema Builder frame only in tab3
+schema_builder = SchemaBuilder(tab3)
+
+ttk.Button(tab3, text='Criar Tabela', command=lambda: create_tables(dataset_id_entry, table_id_entry, bucket_uri_entry, auto_schema_button, schema_builder, progress, root)).grid(row=4, column=1)
 
 root.mainloop()

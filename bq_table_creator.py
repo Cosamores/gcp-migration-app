@@ -1,5 +1,3 @@
-# arquivo bq_create_table.py
-
 from google.cloud import bigquery
 import logging
 
