@@ -1,0 +1,15 @@
+os
+google.cloud 
+storage 
+bigquery
+logging
+tk 
+ttk 
+tkinter
+filedialog 
+messagebox
+ttkthemes
+gcp_uploader_
+file_converter
+pyreadstat
+pandas
